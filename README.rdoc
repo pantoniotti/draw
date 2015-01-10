@@ -1,0 +1,19 @@
+= draw
+
+Describe your project here
+
+:include:draw.rdoc
+
+Classes and methods
+
+Draw
+- run
+- list  : list guests/recipient, can be filtered
+
+List
+
+- add   : add guest
+- seed  : load default guests
+- list  : lists guests, can be filtered
+- remove: deletes one or several guests
+- reset : remove all guests
