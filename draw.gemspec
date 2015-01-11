@@ -22,4 +22,5 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency('gli','2.12.2')
   s.add_runtime_dependency('highline')
   s.add_runtime_dependency('rainbow')
+  s.add_runtime_dependency('terminal-table')
 end
