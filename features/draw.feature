@@ -45,13 +45,13 @@ Feature: My bootstrapped app kinda works
     And the output should contain "Mrs Brault"
 
   @wip
-  Scenario: Reset the guest list
+  Scenario: Clear the guest list
     Given I have the following guests:
     """
     Mr Brault,Mrs Martineau
     Phil,Priss
     """
-    When I run `draw guests reset`
+    When I run `draw guests clear`
     Then the output should contain "Successfully deleted all guests"
 
   @wip
@@ -64,7 +64,6 @@ Feature: My bootstrapped app kinda works
     When I run `draw guests match`
     Then the output should contain "Successfully added Mrs Martineau"
 
-  @wip
   Scenario: Run the draw on current guests list
     Given I have the following guests:
     """

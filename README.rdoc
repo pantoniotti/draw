@@ -1,19 +1,26 @@
 = draw
 
-Describe your project here
-
 :include:draw.rdoc
 
-Classes and methods
+=== Namespaces and methods
 
 Draw
-- run
-- list  : list guests/recipient, can be filtered
 
-List
+- clear : Clear the draw list (delete all)
+- list  : Show the list of gifts from/to, can be filtered by guest name
+- run   : Starts the draw and outputs the gifts list
 
-- add   : add guest
-- seed  : load default guests
-- list  : lists guests, can be filtered
-- remove: deletes one or several guests
-- reset : remove all guests
+Draw::Guest
+
+- add   : Add a guest to the guests list
+- clear : Clear the guests list (Delete all)
+- list  : Lists guests, can be filtered by name
+- match : Create new guests based on existing guests joint name
+- seed  : load default guests list from array or file
+
+To be added
+- remove: Deletes one or several guests with index or name
+
+=== TESTS
+
+To run all tests  : bundle exec rake wip

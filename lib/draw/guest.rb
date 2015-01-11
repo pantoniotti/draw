@@ -1,11 +1,10 @@
 class Guest
 
-  attr_accessor :name, :joint, :recipient
+  attr_accessor :name, :joint
 
-  def initialize(name = nil, joint = nil, recipient = nil)
+  def initialize(name = nil, joint = nil)
     @name = name
     @joint = joint
-    @recipient = recipient
   end
 
 end
