@@ -26,6 +26,13 @@ version Draw::VERSION
 subcommand_option_handling :normal
 arguments :strict
 
+      gifts = keyword.nil? ? gifts : gifts.select {|g| g.from.downcase.include? keyword.downcase }
+      if gifts.nil? || gifts.length == 0
+        if keyword
+          puts "No gift match the query: " + keyword
+        else
+          puts "The list of gifts is empty ..."
+        end
 desc 'Guests namespace'
 command :guests do |g|
 
