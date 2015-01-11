@@ -18,12 +18,13 @@ Once the application is installed and gems bundled, run:
   bundle exec draw init
 
 This will command will create a guests list containing the host and his wife name: Mr and Mrs Brault.
-
 From there, all familly members can add their own name (with their spouses/companion if they have one)
-
 When all members have entered their names in the guest list, Mr Brault can run the draw.
 
-To make sure all participants spouses/friend are in the list, run the "match" command (see below)
+To simplify the guest loading process, you can edit the guests.txt file to add as many guests as you want.
+Each line must be in the format : "MyName,MySpouseName", or "MyName" only if single.
+
+To make sure all participants spouses/friend who did not yet entered their information are also in the list, run the "match" command (see below).
 
 The result of the draw is a table containing the list of all the participants and the person they should give a present to.
 

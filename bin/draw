@@ -211,7 +211,7 @@ command :guests do |c|
   c.command :seed do |a|
     a.action do |global_options,options,args|
       begin
-        new_guests = GUESTS || load_seed()
+        new_guests = load_seed()
         guests = add_guests new_guests
       rescue Exception => e
         puts "draw::guests::seed \t ERROR:\t #{e.message}"
@@ -315,7 +315,11 @@ def load_seed
   text.gsub!(/\r\n?/, "\n")
   text.each_line do |line|
     values = line.split(",")
-    guests << [values[0].strip(), values[1].strip()]
+    name = values[0] ? values[0].strip() : nil
+    joint = values[1] ? values[1].strip() : nil
+    if name && name != ""
+      guests << [name, joint]
+    end
   end
   return guests
 end
