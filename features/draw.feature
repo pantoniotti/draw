@@ -7,38 +7,38 @@ Feature: My bootstrapped app kinda works
     When I get help for "draw"
     Then the exit status should be 0
 
+  @wip
+  Scenario: Add a guest to the list of guests
+    When I run `draw guests add -n Test -j NoOne`
+    Then the output should contain "added Test"
+
+  @wip
   Scenario: Show all guests
-    When I run `draw list`
-    Then GUESTS.length should == 2
+    Given I have the following guests:
+    """
+    Mr Brault,Mrs Brault
+    Mr Martineau,Mrs Martineau
+    """
+    When I run `draw guests list`
+    Then the output should contain "Mr Brault"
+    And the output should contain "Mrs Martineau"
 
   @wip
   Scenario: List a particular guest
-    # Given I have the following guests:
-    # """
-    # {name: Mr Brault, joint: Mme Brault}
-    # {name: Phil, joint: Priss}
-    # """
-    When I run `draw list Phil`
-    Then the output should contain "Phil"
-    And the output should contain "Priss"
+    Given I have the following guests:
+    """
+    Mr Brault,Mrs Brault
+    Mr Martineau,Mrs Martineau
+    """
+    When I run `draw guests list brau`
+    Then the output should contain "Mr Brault"
+    And the output should contain "Mrs Brault"
 
   Scenario: Show a particular guest gift recipient
-    # Given I have the following guests:
-    # """
-    # {name: Mr Brault, joint: Mme Brault}
-    # {name: Phil, joint: Priss}
-    # """
+    Given I have the following guests:
+    """
+    Mr Brault,Mme Martineau
+    Phil,Priss
+    """
     When I run `draw show Phil`
     Then the output should contain "Phil"
-
-  Scenario: Add a guest to the list of guests
-    When I run `draw add Test`
-    Then the output should contain "added Test"
-
-  Scenario: Export guest list into file
-  When I run `draw export`
-  Then a file named "guests.txt" should exist
-  And the file "guests.txt" should contain:
-    """
-    ["{name: Mr Brault, joint: Mme Brault}", "{name: Phil, joint: Priss}"]
-    """
