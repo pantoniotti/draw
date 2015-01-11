@@ -28,7 +28,15 @@ arguments :strict
 
 # Fill this array with ["Name", "Joint"] separated items
 # In case seed file is not available
-GUESTS = []
+GUESTS = [["Mr Brault", "Mrs Brault"]]
+
+desc 'Initialize the guest and gifts lists'
+command :init do |c|
+  c.action do |global_options,options,args|
+    guests = GUESTS
+    add_guests guests
+  end
+end
 
 desc 'Clears the gifts list'
 command :clear do |c|
@@ -42,21 +50,19 @@ command :clear do |c|
         guests.each do |guest|
           guest.recipient = nil
         end
-        print_guests guests
       else
         puts "The list of guests is empty ..."
       end
+      print_guests guests
     rescue Exception => e
       puts "draw::clear \t ERROR:\t #{e.message}"
     end
   end
 end
 
-desc 'Lists all gifts (can be filtered by name)'
+desc 'Display gifts from/to list (can be filtered by name)'
 arg_name 'name'
 command :list do |c|
-  c.desc 'Show the gifts from/to list'
-
   c.action do |global_options,options,args|
     begin
       keyword = args[0] unless args.nil?
@@ -129,27 +135,8 @@ command :guests do |c|
 
     a.action do |global_options,options,args|
       begin
-        guests = []
-        @store.transaction do
-          guests = @store[:guests] | []
-        end
-        values = [options[:name], options[:joint]]
-
-        add = (guests.length > 0 && guests.select {|g| g.name.downcase.include? options[:name].downcase }.length > 0) ? false : true
-
-        if add
-          guest = Guest.new(options[:name], options[:joint])
-          @store.transaction do
-            @store[:guests] << guest
-            if @store[:guests].include? guest
-              puts "Successfully added " + guest.name + " to the list of guests"
-              guests << guest
-            end
-          end
-        else
-          name = options[:name].color :red
-          puts "Guest '" + name + "' is already in the list"
-        end
+        new_guests = [[options[:name], options[:joint]]]
+        guests = add_guests new_guests
         print_guests guests
       rescue Exception => e
         puts "draw::guests::add \t ERROR:\t #{e.message}"
@@ -205,24 +192,14 @@ command :guests do |c|
     a.action do |global_options,options,args|
       begin
         guests = []
+        new_guests = []
         @store.transaction do
           guests = @store[:guests] || []
         end
         guests.each do |guest|
-          if guest.joint
-            add = (guests.length > 0 && guests.select {|g| g.name.downcase.include? guest.joint.downcase }.length > 0) ? false : true
-            if add
-              new_guest = Guest.new(guest.joint, guest.name)
-              @store.transaction do
-                @store[:guests] << new_guest
-                if @store[:guests].include? new_guest
-                  puts "Successfully added " + new_guest.name + " to the list of guests"
-                  guests << new_guest
-                end
-              end
-            end
-          end
+          new_guests << [guest.joint, guest.name] unless guest.joint.nil?
         end
+        guests = add_guests new_guests
         print_guests guests
       rescue Exception => e
         puts "draw::guests::match \t ERROR:\t #{e.message}"
@@ -235,27 +212,7 @@ command :guests do |c|
     a.action do |global_options,options,args|
       begin
         new_guests = GUESTS || load_seed()
-        guests = []
-        @store.transaction do
-          guests = @store[:guests] || []
-        end
-        new_guests.each do |new_guest|
-          guest = Guest.new(new_guest[0], new_guest[1])
-          add = (guests.length > 0 && guests.select {|g| g.name.downcase.include? guest.name.downcase }.length > 0) ? false : true
-          if add
-            @store.transaction do
-              @store[:guests] << guest
-              if @store[:guests].include? guest
-                puts "Successfully added " + guest.name + " to the list of guests"
-                guests << guest
-              end
-            end
-          else
-            name = new_guest[0].color :red
-            puts "Guest '" + name + "' is already in the list"
-          end
-        end
-        print_guests guests
+        guests = add_guests new_guests
       rescue Exception => e
         puts "draw::guests::seed \t ERROR:\t #{e.message}"
       end
@@ -272,6 +229,7 @@ pre do |global,command,options,args|
   @store = PStore.new %(#{ENV['HOME']}/draw.pstore)
   @store.transaction do
     @store[:guests] ||= []
+    @store[:gifts] ||= []
   end
   true
 end
@@ -289,6 +247,34 @@ on_error do |exception|
 end
 
 private
+
+def add_guests new_guests
+  begin
+    guests = []
+    @store.transaction do
+      guests = @store[:guests] || []
+    end
+    new_guests.each do |new_guest|
+      guest = Guest.new(new_guest[0], new_guest[1])
+      add = (guests.length > 0 && guests.select {|g| g.name.downcase.include? guest.name.downcase }.length > 0) ? false : true
+      if add
+        @store.transaction do
+          @store[:guests] << guest
+          if @store[:guests].include? guest
+            puts "Successfully added " + guest.name + " to the list of guests"
+            guests << guest
+          end
+        end
+      else
+        name = new_guest[0].color :red
+        puts "Guest '" + name + "' is already in the list"
+      end
+    end
+    return guests
+  rescue Exception => e
+    puts "add_guests \t ERROR:\t #{e.message}"
+  end
+end
 
 def print_guests guests
   table = Terminal::Table.new do |t|
