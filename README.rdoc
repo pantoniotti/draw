@@ -13,12 +13,63 @@ In a terminal, type:
 
 == Usage
 
-Show the help:
+Once the application is installed and gems bundled, run:
 
-  bundle exec draw --help
+  bundle exec draw init
+
+This will command will create a guests list containing the host and his wife name: Mr and Mrs Brault.
+
+From there, all familly members can add their own name (with their spouses/companion if they have one)
+
+When all members have entered their names in the guest list, Mr Brault can run the draw.
+
+To make sure all participants spouses/friend are in the list, run the "match" command (see below)
+
+The result of the draw is a table containing the list of all the participants and the person they should give a present to.
+
+Hope you find this usefull.
+
+~ The draw team ~
 
 
-==== Gift Draw
+==== Guests Commands
+
+Add a guest to the list:
+
+<em>Note: '-n' flag is mandatory, '-j' is not (a guest can be single)</em>
+
+  bundle exec draw guests add -n "My name" -j "My spouse or friend name if any"
+
+
+Clear the guests list.
+
+  bundle exec draw guests clear
+
+
+Seed the guests list to batch add guests from a text file values (guests.txt).
+
+  bundle exec draw guests seed
+
+
+Aumatically create new guests from existing guests spouse/friend names:
+
+<em>Note: All existing ones will be ignored.</em>
+
+  bundle exec draw guests match
+
+
+Show the guests list:
+
+  bundle exec draw guests list
+
+Show the guests list filtered by name:
+
+<em>Note: The filter can be case insensitive partial name: e.g. "bra" for "Mr Brault".</em>
+
+  bundle exec draw guests add -n "My Name" -j "My Spouse/Friend Name"
+
+
+==== Draw Commands
 
 Starts the draw and outputs the gifts list:
 
@@ -39,40 +90,11 @@ Show the gifts table filtered by guest name:
   bundle exec draw list "My Name"
 
 
+=== HELP
 
-==== Guests
+Show the help:
 
-Add a guest to the list:
-
-<em>Note: '-n' flag is mandatory, '-j' is not (a guest can be single)</em>
-
-  bundle exec draw guests add -n "My Name" -j "My Spouse/Friend Name"
-
-
-Clear the guests list.
-
-  bundle exec draw guests clear
-
-Seed the guests list to batch add guests from a text file values (guests.txt).
-
-  bundle exec draw guests seed
-
-Aumatically create new guests from existing guests spouse/friend names:
-
-<em>Note: All existing ones will be ignored.</em>
-
-  bundle exec draw guests match
-
-
-Show the guests list:
-
-  bundle exec draw guests list
-
-Show the guests list filtered by name:
-
-<em>Note: The filter can be case insensitive partial name: e.g. "bra" for "Mr Brault".</em>
-
-  bundle exec draw guests add -n "My Name" -j "My Spouse/Friend Name"
+  bundle exec draw --help
 
 
 === TESTS
