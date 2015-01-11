@@ -109,7 +109,6 @@ command :run do |c|
           # Remove recipient from recipients array
           recipients.reject! {|x| x == recipient }
         end
-        puts gifts.inspect
         @store.transaction do
           @store[:gifts] = gifts
         end
