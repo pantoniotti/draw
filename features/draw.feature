@@ -10,7 +10,17 @@ Feature: My bootstrapped app kinda works
   @wip
   Scenario: Add a guest to the list of guests
     When I run `draw guests add -n Test -j NoOne`
-    Then the output should contain "added Test"
+    Then the output should contain "Successfully added Test"
+
+  @wip
+  Scenario: Add a guest without joint to the list of guests
+    When I run `draw guests add -n Test`
+    Then the output should contain "Successfully added Test"
+
+  @wip
+  Scenario: Add a guest with no name to the list of guests
+    When I run `draw guests add -j NoOne`
+    Then the output should contain "error: n is required"
 
   @wip
   Scenario: Show all guests
@@ -34,11 +44,36 @@ Feature: My bootstrapped app kinda works
     Then the output should contain "Mr Brault"
     And the output should contain "Mrs Brault"
 
-  Scenario: Show a particular guest gift recipient
+  @wip
+  Scenario: Reset the guest list
     Given I have the following guests:
     """
-    Mr Brault,Mme Martineau
+    Mr Brault,Mrs Martineau
     Phil,Priss
     """
-    When I run `draw show Phil`
-    Then the output should contain "Phil"
+    When I run `draw guests reset`
+    Then the output should contain "Successfully deleted all guests"
+
+  @wip
+  Scenario: Match the guest list couples
+    Given I have the following guests:
+    """
+    Mr Brault,Mrs Martineau
+    Phil,Priss
+    """
+    When I run `draw guests match`
+    Then the output should contain "Successfully added Mrs Martineau"
+
+  @wip
+  Scenario: Run the draw on current guests list
+    Given I have the following guests:
+    """
+    Mr Brault,Mrs Martineau
+    Phil,Priss
+    Mr Leon,Mrs Leon
+    Mickey,Minnie
+    """
+    When I run `draw run`
+    Then the output should contain "OK"
+
+

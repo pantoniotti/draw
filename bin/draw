@@ -19,42 +19,12 @@ end
 
 include GLI::App
 
-program_desc 'Draw lets you create a list of guests and build a gifts draw list'
+program_desc 'This app lets you build a list of guests and run a gift draw from this list'
 
 version Draw::VERSION
 
 subcommand_option_handling :normal
 arguments :strict
-
-desc 'Describe some switch here'
-switch [:s,:switch]
-
-desc 'Describe some flag here'
-default_value 'the default'
-arg_name 'The name of the argument'
-flag [:f,:flagname]
-
-# GUESTS = [
-#   {
-#     name: "Mr Brault",
-#     joint: "Mrs Brault"
-#   },
-#   {
-#     name: "Mr Martineau",
-#     joint: "Mrs Martineau"
-#   },
-#   {
-#     name: "Mr Leon",
-#     joint: "Mrs Leon"
-#   }
-# ]
-
-GUESTS = [
-  ["Mr Brault","Mrs Brault"],
-  ["Mr Martineau","Mrs Martineau"],
-  ["Mr Leon","Mrs Leon"]
-]
-
 
 desc 'Guests namespace'
 command :guests do |g|
@@ -62,7 +32,7 @@ command :guests do |g|
   g.desc 'Add a new guest to the list'
   g.command :add do |c|
     c.desc 'Guest Name'
-    c.flag [:n, :name]
+    c.flag [:n, :name], required: true
     c.desc 'Guest Spouse/Friend Name'
     c.flag [:j, :joint]
 
@@ -72,7 +42,6 @@ command :guests do |g|
         @store.transaction do
           guests = @store[:guests]
         end
-
         values = [options[:name], options[:joint]]
 
         add = (guests.length > 0 && guests.select {|g| g.name.downcase.include? options[:name].downcase }.length > 0) ? false : true
@@ -81,12 +50,16 @@ command :guests do |g|
           guest = Guest.new(options[:name], options[:joint])
           @store.transaction do
             @store[:guests] << guest
-            puts "Successfully added " + guest.name + " to the list of guests" if @store[:guests].include? guest
+            if @store[:guests].include? guest
+              puts "Successfully added " + guest.name + " to the list of guests"
+              guests << guest
+            end
           end
         else
           name = options[:name].color :red
           puts "Guest '" + name + "' is already in the list"
         end
+        print_table guests
       rescue Exception => e
         puts "draw::guests::add \t ERROR:\t #{e.message}"
       end
@@ -113,15 +86,14 @@ command :guests do |g|
         end
 
         guests = keyword.nil? ? guests : guests.select {|g| g.name.downcase.include? keyword.downcase }
-        if guests && guests.length > 0
-          print_table guests
-        else
+        if guests.nil? || guests.length == 0
           if keyword
             puts "No guest match the query: " + keyword
           else
             puts "The list of guests is empty ..."
           end
         end
+        print_table guests
       rescue Exception => e
         puts "draw::guests::list \t ERROR:\t #{e.message}"
       end
@@ -151,6 +123,7 @@ command :guests do |g|
             end
           end
         end
+        print_table guests
       rescue Exception => e
         puts "draw::guests::match \t ERROR:\t #{e.message}"
       end
@@ -161,11 +134,13 @@ command :guests do |g|
   g.command :reset do |c|
     c.action do |global_options,options,args|
       begin
+        guests = []
         @store.transaction do
           @store[:guests] = []
           guests = @store[:guests]
-          puts "Successfullly deleted all guests" if guests.length == 0
         end
+        puts "Successfully deleted all guests" if guests.length == 0
+        print_table guests
       rescue Exception => e
         puts "draw::guests::reset \t ERROR:\t #{e.message}"
       end
@@ -199,7 +174,7 @@ command :guests do |g|
 
 end
 
-desc 'Run the draw and display recipients in the list'
+desc 'Run the draw and display gifts recipients names in the guests list'
 command :run do |c|
   c.action do |global_options,options,args|
     begin
@@ -207,21 +182,32 @@ command :run do |c|
       @store.transaction do
         guests = @store[:guests]
       end
+      # Make sure we have all guests listed
       if guests
+        recipients = guests.map { |g| g.name }
         guests.each do |guest|
-          guest.recipient = "OK"
+          recipient = guest.name
+          while recipients.count > 0 && (guest.name == recipient || guest.joint == recipient)
+            recipient = recipients.shuffle.sample
+          end
+          guest.recipient = recipient + " -> OK"
+          # Remove recipient from recipients array
+          recipients.reject! {|x| x == recipient }
         end
-        print_table guests
+        @store.transaction do
+          @store[:guests] = guests
+        end
       else
         puts "The list of guests is empty ..."
       end
+      print_table guests
     rescue Exception => e
       puts "draw::run \t ERROR:\t #{e.message}"
     end
   end
 end
 
-desc 'Reinitialize the recipient column'
+desc 'Reinitialize the recipient column in the guests list'
 command :init do |c|
   c.action do |global_options,options,args|
     begin
@@ -305,7 +291,6 @@ def load_seed
   text.gsub!(/\r\n?/, "\n")
   text.each_line do |line|
     values = line.split(",")
-    # guest = Guest.new(values[0].strip(), values[1].strip())
     guests << [values[0].strip(), values[1].strip()]
   end
   return guests
