@@ -1,26 +1,82 @@
 = draw
 
-:include:draw.rdoc
+Draw is command-line app written in ruby with gli.
+It lets you build a list of guests which you'll use to organize a gift draw.
 
-=== Namespaces and methods
+== Installation
 
-Draw
+In a terminal, type:
 
-- clear : Clear the draw list (delete all)
-- list  : Show the list of gifts from/to, can be filtered by guest name
-- run   : Starts the draw and outputs the gifts list
+  git clone https://github.com/pantoniotti/draw.git
+  cd draw
+  bundle install
 
-Draw::Guest
+== Usage
 
-- add   : Add a guest to the guests list
-- clear : Clear the guests list (Delete all)
-- list  : Lists guests, can be filtered by name
-- match : Create new guests based on existing guests joint name
-- seed  : load default guests list from array or file
+Show the help:
 
-To be added
-- remove: Deletes one or several guests with index or name
+  bundle exec draw --help
+
+
+==== Gift Draw
+
+Starts the draw and outputs the gifts list:
+
+  bundle exec draw run"
+
+Clear the gift draw list:
+
+  bundle exec draw clear
+
+Show the gifts list:
+
+  bundle exec draw list
+
+Show the gifts table filtered by guest name:
+
+<em>Note: The filter can be case insensitive partial name: e.g. "bra" for "Mr Brault".</em>
+
+  bundle exec draw list "My Name"
+
+
+
+==== Guests
+
+Add a guest to the list:
+
+<em>Note: '-n' flag is mandatory, '-j' is not (a guest can be single)</em>
+
+  bundle exec draw guests add -n "My Name" -j "My Spouse/Friend Name"
+
+
+Clear the guests list.
+
+  bundle exec draw guests clear
+
+Seed the guests list to batch add guests from a text file values (guests.txt).
+
+  bundle exec draw guests seed
+
+Aumatically create new guests from existing guests spouse/friend names:
+
+<em>Note: All existing ones will be ignored.</em>
+
+  bundle exec draw guests match
+
+
+Show the guests list:
+
+  bundle exec draw guests list
+
+Show the guests list filtered by name:
+
+<em>Note: The filter can be case insensitive partial name: e.g. "bra" for "Mr Brault".</em>
+
+  bundle exec draw guests add -n "My Name" -j "My Spouse/Friend Name"
+
 
 === TESTS
 
-To run all tests  : bundle exec rake wip
+Run all tests:
+
+  bundle exec rake wip
