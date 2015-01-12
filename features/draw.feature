@@ -10,12 +10,12 @@ Feature: My bootstrapped app kinda works
   @wip
   Scenario: Add a guest to the list of guests
     When I run `draw guests add -n Test -j NoOne`
-    Then the output should contain "Successfully added Test"
+    Then the output should contain "Successfully added guest Test"
 
   @wip
   Scenario: Add a guest without joint to the list of guests
     When I run `draw guests add -n Test`
-    Then the output should contain "Successfully added Test"
+    Then the output should contain "Successfully added guest Test"
 
   @wip
   Scenario: Add a guest with no name to the list of guests
@@ -62,7 +62,7 @@ Feature: My bootstrapped app kinda works
     Phil,Priss
     """
     When I run `draw guests match`
-    Then the output should contain "Successfully added Mrs Martineau"
+    Then the output should contain "Successfully matched all guests"
 
   @wip
   Scenario: Clear the draw list
@@ -73,8 +73,9 @@ Feature: My bootstrapped app kinda works
     Mr Leon,Mrs Brault
     """
     When I run `draw clear`
-    Then the output should contain "Successfully deleted all gifts"
+    Then the output should contain "Successfully deleted draw list of gifts"
 
+  @wip
   Scenario: Run the draw on current guests list
     Given I have the following guests:
     """
@@ -84,6 +85,6 @@ Feature: My bootstrapped app kinda works
     Mickey,Minnie
     """
     When I run `draw run`
-    Then the output should contain "OK"
+    Then the output should contain "Success"
 
 

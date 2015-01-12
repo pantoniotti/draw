@@ -1,5 +1,8 @@
 require 'draw/guest.rb'
 require 'draw/gift.rb'
+require 'draw/draw_factory.rb'
+require 'draw/guests_factory.rb'
+require 'draw/gifts_factory.rb'
 
 Given /^I have the following guests:$/ do |guests|
   store = PStore.new %(#{ENV['HOME']}/draw.pstore)
