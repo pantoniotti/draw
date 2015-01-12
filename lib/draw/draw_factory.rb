@@ -6,7 +6,7 @@ class DrawFactory
     begin
       guests = GuestsFactory.get()
       gifts = GiftsFactory.get()
-      if guests
+      if guests && guests.length > 1
         recipients = guests.map { |g| g.name }
         guests.each do |guest|
           recipient = guest.name
@@ -23,8 +23,11 @@ class DrawFactory
         store.transaction do
           store[:gifts] = gifts
         end
+        true
+      else
+        puts "Draw can only run with 2 or more guests"
+        false
       end
-      true
     rescue Exception => e
       puts "DrawFactory::run \t ERROR:\t #{e.message}"
     end

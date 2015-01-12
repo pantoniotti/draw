@@ -20,6 +20,13 @@ Then
 
 == Usage
 
+First, to avoid typing "bundle exec ..." everytime, may I suggest creating an alias for the terminal session, so that you only have to type "draw do_this", instead of the whole "bundle exec draw do_this" :
+
+  alias draw='bundle exec draw'
+
+If you choose to do this, just replace all "bundle exec draw" part of the commands below by "draw".
+
+
 Once the application is installed and gems bundled, run:
 
   bundle exec draw init

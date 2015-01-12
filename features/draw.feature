@@ -76,6 +76,16 @@ Feature: My bootstrapped app kinda works
     Then the output should contain "Successfully deleted draw list of gifts"
 
   @wip
+  Scenario: Run the draw on single guest list
+    Given I have the following guests:
+    """
+    Mr Brault,Mrs Martineau
+    """
+    When I run `draw run`
+    Then the output should contain "Draw can only run with 2 or more guests"
+    And the output should contain "Failed"
+
+  @wip
   Scenario: Run the draw on current guests list
     Given I have the following guests:
     """
