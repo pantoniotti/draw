@@ -5,11 +5,16 @@ It lets you build a list of guests which you'll use to organize a gift draw.
 
 == Installation
 
-To be able to install and run the application, you need to have ruby 1.9.3 or above installed.
+To be able to run the application, you need to have ruby 1.9.3 or above installed.
 
-In a terminal, type:
+To install the appplication you can click on the 'Download Zip' button on the right and unzip the file in a location of your choice.
+
+Or, in a terminal, type:
 
   git clone https://github.com/pantoniotti/draw.git
+
+Then
+
   cd draw
   bundle install
 
