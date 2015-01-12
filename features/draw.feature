@@ -64,6 +64,17 @@ Feature: My bootstrapped app kinda works
     When I run `draw guests match`
     Then the output should contain "Successfully added Mrs Martineau"
 
+  @wip
+  Scenario: Clear the draw list
+    Given I have the following gifts:
+    """
+    Mr Brault,Mrs Leon
+    Phil,Mrs Leon
+    Mr Leon,Mrs Brault
+    """
+    When I run `draw clear`
+    Then the output should contain "Successfully deleted all gifts"
+
   Scenario: Run the draw on current guests list
     Given I have the following guests:
     """

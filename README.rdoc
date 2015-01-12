@@ -5,6 +5,8 @@ It lets you build a list of guests which you'll use to organize a gift draw.
 
 == Installation
 
+To be able to install and run the application, you need to have ruby 1.9.3 or above installed.
+
 In a terminal, type:
 
   git clone https://github.com/pantoniotti/draw.git

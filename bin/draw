@@ -42,18 +42,13 @@ desc 'Clears the gifts list'
 command :clear do |c|
   c.action do |global_options,options,args|
     begin
-      guests = []
+      gifts = []
       @store.transaction do
-        guests = @store[:guests] || []
+        @store[:gifts] = []
+        gifts = @store[:gifts]
       end
-      if guests
-        guests.each do |guest|
-          guest.recipient = nil
-        end
-      else
-        puts "The list of guests is empty ..."
-      end
-      print_guests guests
+      puts "Successfully deleted all gifts" if gifts.length == 0
+      print_gifts gifts
     rescue Exception => e
       puts "draw::clear \t ERROR:\t #{e.message}"
     end
