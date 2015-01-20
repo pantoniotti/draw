@@ -34,11 +34,14 @@ desc 'Initialize the guest and gifts lists'
 command :init do |c|
   c.action do |global_options,options,args|
     guests = GUESTS
-    if GuestsFactory.add(guests) == true
-      msg = "Successfully initialized draw"
+    draw = DrawFactory.new
+    msg = ""
+    if draw.add(guests) == true
+      msg = "SuccessFully initialized draw"
+    else
+      msg = "Initialization Failed"
     end
-    guests = GuestsFactory.get()
-    print_guests(guests, msg)
+    print_guests(draw.guests, msg)
   end
 end
 
@@ -46,12 +49,10 @@ desc 'Clears the gift draw'
 command :clear do |c|
   c.action do |global_options,options,args|
     begin
-      gifts = []
-      if GiftsFactory.clear() == true
-        msg = "Successfully deleted draw list of gifts" if gifts.length == 0
-      end
-      gifts = GiftsFactory.get()
-      print_gifts(gifts, msg)
+      draw = DrawFactory.new
+      draw.gifts = []
+      msg = "Successfully cleared draw list of gifts"
+      print_gifts(draw.gifts, msg)
     rescue Exception => e
       puts "draw::clear \t ERROR:\t #{e.message}"
     end
@@ -64,18 +65,19 @@ command :list do |c|
   c.action do |global_options,options,args|
     begin
       keyword = args[0] unless args.nil?
+      draw = DrawFactory.new
       gifts = []
-      @store.transaction do
-        gifts = @store[:gifts] || []
-      end
-
-      gifts = keyword.nil? ? gifts : gifts.select {|g| g.from.downcase.include? keyword.downcase }
-      if gifts.nil? || gifts.length == 0
-        if keyword
-          puts "No gift match the query: " + keyword
-        else
-          puts "The list of gifts is empty ..."
+      if draw.gifts && draw.gifts.length > 0
+        gifts = keyword.nil? ? draw.gifts : draw.gifts.select {|g| g.from.downcase.include? keyword.downcase }
+        if gifts.nil? || gifts.length == 0
+          if keyword
+            puts "No gift match the query: " + keyword
+          else
+            puts "The list of gifts is empty ..."
+          end
         end
+      else
+        puts "The list of gifts is empty ..."
       end
       print_gifts(gifts)
     rescue Exception => e
@@ -88,11 +90,11 @@ desc 'Run the draw and display gifts from/to list'
 command :run do |c|
   c.action do |global_options,options,args|
     begin
+      draw = DrawFactory.new
       # Before run the draw we must reset the previous one
-      GiftsFactory.clear()
-      msg = DrawFactory.run() == true ? "Success" : "Failed"
-      gifts = GiftsFactory.get()
-      print_gifts(gifts, msg)
+      reset = draw.reset()
+      msg = draw.run() == true ? "Success" : "Failed"
+      print_gifts(draw.gifts, msg)
     rescue Exception => e
       puts "draw::run \t ERROR:\t #{e.message}"
     end
@@ -112,11 +114,11 @@ command :guests do |c|
     a.action do |global_options,options,args|
       begin
         new_guests = [[options[:name], options[:joint]]]
-        if GuestsFactory.add(new_guests) == true
+        draw = DrawFactory.new
+        if draw.add(new_guests) == true
           msg = "Successfully added guest #{options[:name]}"
         end
-        guests = GuestsFactory.get()
-        print_guests(guests, msg)
+        print_guests(draw.guests, msg)
       rescue Exception => e
         puts "draw::guests::add \t ERROR:\t #{e.message}"
       end
@@ -127,13 +129,11 @@ command :guests do |c|
   c.command :clear do |a|
     a.action do |global_options,options,args|
       begin
-        if GuestsFactory.clear() == true
-          guests = GuestsFactory.get()
-          msg = "Successfully deleted all guests" if guests.length == 0
+        draw = DrawFactory.new
+        if draw.clear() == true
+          msg = "Successfully deleted all guests" if draw.guests.length == 0
         end
-        # if there are not more guests, we should also delete the gifts list
-        GiftsFactory.clear()
-        print_guests(guests, msg)
+        print_guests(draw.guests, msg)
       rescue Exception => e
         puts "draw::guests::clear \t ERROR:\t #{e.message}"
       end
@@ -146,7 +146,8 @@ command :guests do |c|
     a.action do |global_options,options,args|
       begin
         keyword = args[0] unless args.nil?
-        guests = GuestsFactory.get(keyword)
+        draw = DrawFactory.new
+        guests = draw.get(keyword)
         if guests.nil? || guests.length == 0
           if keyword
             msg = "No guest match the query: " + keyword
@@ -166,15 +167,14 @@ command :guests do |c|
     a.action do |global_options,options,args|
       begin
         new_guests = []
-        guests = GuestsFactory.get()
-        guests.each do |guest|
+        draw = DrawFactory.new
+        draw.guests.each do |guest|
           new_guests << [guest.joint, guest.name] unless guest.joint.nil?
         end
-        if GuestsFactory.add(new_guests) == true
+        if draw.add(new_guests) == true
           msg = "Successfully matched all guests"
         end
-        guests = GuestsFactory.get()
-        print_guests(guests, msg)
+        print_guests(draw.guests, msg)
       rescue Exception => e
         puts "draw::guests::match \t ERROR:\t #{e.message}"
       end
@@ -185,12 +185,12 @@ command :guests do |c|
   c.command :seed do |a|
     a.action do |global_options,options,args|
       begin
-        new_guests = GuestsFactory.seed()
-        if GuestsFactory.add(new_guests) == true
+        draw = DrawFactory.new
+        new_guests = draw.seed()
+        if draw.add(new_guests) == true
           msg = "Successfully seeded guests"
         end
-        guests = GuestsFactory.get()
-        print_guests(guests, msg)
+        print_guests(draw.guests, msg)
       rescue Exception => e
         puts "draw::guests::seed \t ERROR:\t #{e.message}"
       end
@@ -204,11 +204,6 @@ pre do |global,command,options,args|
   # chosen command
   # Use skips_pre before a command to skip this block
   # on that command only
-  @store = PStore.new %(#{ENV['HOME']}/draw.pstore)
-  @store.transaction do
-    @store[:guests] ||= []
-    @store[:gifts] ||= []
-  end
   true
 end
 
@@ -226,34 +221,6 @@ end
 
 private
 
-# def add_guests new_guests
-#   begin
-#     guests = []
-#     @store.transaction do
-#       guests = @store[:guests] || []
-#     end
-#     new_guests.each do |new_guest|
-#       guest = Guest.new(new_guest[0], new_guest[1])
-#       add = (guests.length > 0 && guests.select {|g| g.name.downcase.include? guest.name.downcase }.length > 0) ? false : true
-#       if add
-#         @store.transaction do
-#           @store[:guests] << guest
-#           if @store[:guests].include? guest
-#             puts "Successfully added " + guest.name + " to the list of guests"
-#             guests << guest
-#           end
-#         end
-#       else
-#         name = new_guest[0].color :red
-#         puts "Guest '" + name + "' is already in the list"
-#       end
-#     end
-#     return guests
-#   rescue Exception => e
-#     puts "add_guests \t ERROR:\t #{e.message}"
-#   end
-# end
-
 def print_guests(guests = nil, msg = nil)
   puts msg if msg
   table = Terminal::Table.new do |t|
@@ -262,9 +229,11 @@ def print_guests(guests = nil, msg = nil)
     t.headings = ["Index", "Guest", "Spouse/Friend"]
 
     index = 1
-    guests.each_with_index do |guest, index|
-      index += 1
-      t << [index.to_s, guest.name, guest.joint]
+    if guests
+      guests.each_with_index do |guest, index|
+        index += 1
+        t << [index.to_s, guest.name, guest.joint]
+      end
     end
   end
   table.align_column 0, :center
@@ -279,9 +248,11 @@ def print_gifts(gifts = nil, msg = nil)
     t.headings = ["Index", "From", "To"]
 
     index = 1
-    gifts.each_with_index do |gift, index|
-      index += 1
-      t << [index.to_s, gift.from, gift.to]
+    if gifts
+      gifts.each_with_index do |gift, index|
+        index += 1
+        t << [index.to_s, gift.from, gift.to]
+      end
     end
   end
   table.align_column 0, :center
