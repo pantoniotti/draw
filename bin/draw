@@ -93,6 +93,7 @@ command :run do |c|
       draw = DrawFactory.new
       # Before run the draw we must reset the previous one
       reset = draw.reset()
+      match = draw.match()
       msg = draw.run() == true ? "Success" : "Failed"
       print_gifts(draw.gifts, msg)
     rescue Exception => e
@@ -166,12 +167,8 @@ command :guests do |c|
   c.command :match do |a|
     a.action do |global_options,options,args|
       begin
-        new_guests = []
         draw = DrawFactory.new
-        draw.guests.each do |guest|
-          new_guests << [guest.joint, guest.name] unless guest.joint.nil?
-        end
-        if draw.add(new_guests) == true
+        if draw.match() == true
           msg = "Successfully matched all guests"
         end
         print_guests(draw.guests, msg)

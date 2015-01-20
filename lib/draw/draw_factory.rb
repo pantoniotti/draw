@@ -5,9 +5,9 @@ class DrawFactory
   attr_accessor :guests, :gifts, :store
 
   def initialize
-    @store = get_store
-    @guests = get_guests(@store)
-    @gifts = get_gifts(@store)
+    @store = store
+    @guests = get_guests
+    @gifts = get_gifts
   end
 
   # Add one or several guests in the draw
@@ -53,6 +53,14 @@ class DrawFactory
     rescue Exception => e
       puts "DrawFactory::get \t ERROR:\t #{e.message}"
     end
+  end
+
+  def match
+    new_guests = []
+    @guests.each do |guest|
+      new_guests << [guest.joint, guest.name] unless guest.joint.nil?
+    end
+    return add(new_guests)
   end
 
   # Removes a guest from the draw
@@ -130,7 +138,7 @@ class DrawFactory
 
   private
 
-  def get_gifts(store)
+  def get_gifts
     gifts = []
     store.transaction do
       gifts = store[:gifts] || []
@@ -138,7 +146,7 @@ class DrawFactory
     gifts
   end
 
-  def get_guests(store)
+  def get_guests
     guests = []
     store.transaction do
       guests = store[:guests] || []
@@ -146,8 +154,9 @@ class DrawFactory
     guests
   end
 
-  def get_store
-    PStore.new %(#{ENV['HOME']}/draw.pstore)
+  def store
+    file = %(#{ENV['HOME']}/draw.pstore)
+    @store || PStore.new(file)
   end
 
 end
