@@ -84,6 +84,7 @@ class DrawFactory
   def run
     begin
       if @guests && @guests.count > 2
+        self.match
         recipients = @guests.map { |g| g.name }
         @guests.each do |guest|
           recipient = guest.name
