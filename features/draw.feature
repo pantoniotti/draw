@@ -73,7 +73,7 @@ Feature: My bootstrapped app kinda works
     Mr Leon,Mrs Brault
     """
     When I run `draw clear`
-    Then the output should contain "Successfully deleted draw list of gifts"
+    Then the output should contain "Successfully cleared draw list of gifts"
 
   @wip
   Scenario: Run the draw on single guest list
