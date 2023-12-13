@@ -1,6 +1,7 @@
 = draw
 
 Draw is command-line app written in ruby as a little project to test gli.
+
 It lets you build a list of guests which you'll use to organize a gift draw.
 
 == Installation
